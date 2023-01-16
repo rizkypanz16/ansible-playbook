@@ -1,0 +1,25 @@
+---
+- hosts: local
+  tasks:
+    - name: yum install -y yum-utils lvm2 device-mapper-persistent-data
+      yum: 
+        name: 
+          - yum-utils
+          - lvm2
+          - device-mapper-persistent-data
+        state: latest
+    - name: yum-config-manager  --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      shell: yum-config-manager  --add-repo https://download.docker.com/linux/centos/docker-ce.repo 
+    - name: yum update -y
+      yum:
+        name: "*"
+        state: latest
+    - name: yum install -y docker-ce 
+      yum:
+        name: docker-ce
+        state: latest
+    - name: systemctl start docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
