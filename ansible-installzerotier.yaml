@@ -1,0 +1,9 @@
+---
+- name: install zerotier all host
+  hosts: local
+  tasks:
+    - name: curl -s https://install.zerotier.com | sudo bash
+      shell: curl -s https://install.zerotier.com | sudo bash
+    - name: zerotier-cli join <network-id>
+      shell: zerotier-cli join <network-id>
+  
