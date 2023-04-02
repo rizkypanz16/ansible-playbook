@@ -1,0 +1,44 @@
+- name: install nfs service on NFS nodes
+  hosts: NFS
+  tasks:
+    - name: yum update -y
+      yum:
+        name: '*'
+        state: latest
+    - name: yum install -y nfs-utils
+      yum:
+        name: nfs-utils
+        state: latest
+    - name: mkdir /mnt/nfs && chmod -R 755 /mnt/nfs && chown nfsnobody:nfsnobody /var/nfs
+      file:
+        path: /mnt/nfs
+        state: directory
+        mode: '0755'
+        owner: nfsnobody
+        group: nfsnobody
+    - name: systemctl enable rpcbind && systemctl start rpcbind
+      systemd:
+        name: rpcbind
+        state: started
+        enabled: yes
+    - name: systemctl enable nfs-server && systemctl start nfs-server
+      systemd:
+        name: nfs-server
+        state: started
+        enabled: yes
+    - name: systemctl enable nfs-lock && systemctl start nfs-lock
+      systemd:
+        name: nfs-lock
+        state: started
+        enabled: yes
+    - name: systemctl enable nfs-idmap && systemctl start nfs-idmap
+      systemd:
+        name: nfs-idmap
+        state: started
+        enabled: yes
+    - name: copy exports file
+      copy:
+        src: /root/exports
+        dest: /etc/exports
+           
+       

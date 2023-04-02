@@ -1,0 +1,17 @@
+- name: mount nfs on worker nodes
+  hosts: local
+  tasks:
+    - name: yum update -y
+      yum:
+        name: '*'
+        state: latest
+    - name: yum install nfs-utils
+      yum:
+        name: nfs-utils
+        state: latest
+    - name: mkdir -p /mnt/nfs/home
+      file:
+        path: /mnt/nfs/home
+        state: directory
+    - name: mount -o v3 10.17.0.174:/mnt/nfs /mnt/nfs/home
+      shell: mount -o v3 10.17.0.174:/mnt/nfs /mnt/nfs/home
