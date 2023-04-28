@@ -1,0 +1,18 @@
+- name: install mariadb-server on ubuntu 22
+  hosts: local
+  tasks:
+    - name: apt update
+      apt:
+        name: '*'
+        state: latest
+    - name: apt install -y mariadb-server
+      apt:
+        name: mariadb-server
+        state: latest
+    - name: systemcl start mariadb && systemctl enable mariadb
+      systemd:
+        name: mariadb
+        state: started
+        enabled: true
+    - name: systemctl status mariadb
+      shell: systemctl status mariadb
