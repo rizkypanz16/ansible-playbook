@@ -1,0 +1,53 @@
+---
+- hosts: server-product-notification
+  tasks:
+    - name: Download file
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.6.0/node_exporter-1.6.0.linux-amd64.tar.gz"
+        dest: "/opt/node_exporter-1.6.0.linux-amd64.tar.gz"
+    - name: Extract tar file
+      unarchive:
+        src: /opt/node_exporter-1.6.0.linux-amd64.tar.gz
+        dest: /opt/
+        remote_src: yes
+    - name: Copy node_exporter binary
+      copy:
+        src: /opt/node_exporter-1.6.0.linux-amd64/node_exporter
+        dest: /usr/local/bin
+        mode: "0755"
+        remote_src: yes
+    - name: Create node_exporter user
+      user:
+        name: node_exporter
+        comment: "Node Exporter User"
+        shell: /bin/false
+        create_home: no
+    - name: Set ownership for node_exporter binary
+      file:
+        path: /usr/local/bin/node_exporter
+        owner: node_exporter
+        group: node_exporter
+    - name: Create Node Exporter service file
+      copy:
+        content: |
+          [Unit]
+          Description=Node Exporter
+          After=network.target
+
+          [Service]
+          User=node_exporter
+          Group=node_exporter
+          Type=simple
+          ExecStart=/usr/local/bin/node_exporter
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/node_exporter.service
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+    - name: Start Node Exporter service
+      systemd:
+        name: node_exporter
+        state: started
+        enabled: yes
