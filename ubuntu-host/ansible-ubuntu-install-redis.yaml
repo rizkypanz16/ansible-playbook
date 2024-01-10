@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Install update
+      shell: sudo apt update -y
+    - name: Install Nginx
+      apt:
+        pkg:
+          - lsb-release
+          - curl
+          - gpg
+        state: latest
+    - name: curl redis gpg key
+      shell: curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+    - name: set redis apt repository
+      shell: echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.lis>
+    - name: Install update
+      shell: sudo apt update -y
+    - name: Install Redis
+      apt:
+        name: redis
+        state: latest
+    - name: check redis status
+      shell: redis-cli ping
